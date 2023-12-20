@@ -5,6 +5,8 @@ FROM mcr.microsoft.com/mssql/server:2019-latest
 ENV ACCEPT_EULA=Y \
     SA_PASSWORD=Un!q@to2023
 
+# swtiching to root for "apt" usage. 
+# base container does not allow it otherwise
 USER root 
 RUN apt update
 RUN apt install -y curl 
