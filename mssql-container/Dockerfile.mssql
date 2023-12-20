@@ -1,0 +1,32 @@
+# Use the official Microsoft SQL Server image
+FROM mcr.microsoft.com/mssql/server:2019-latest
+
+# Set the environment variables
+ENV ACCEPT_EULA=Y \
+    SA_PASSWORD=Un!q@to2023
+
+USER root 
+RUN apt update
+RUN apt install -y curl 
+# Import the public repository GPG keys
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
+
+# Register the Microsoft Ubuntu repository
+RUN curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+
+# Update the list of products
+RUN apt-get update
+
+# Install mssql-cli
+RUN apt-get install sqlcmd -y
+# Install missing dependencies
+RUN apt-get install -f
+USER mssql
+
+COPY create-db.sql .
+
+# Expose the port for SQL Server
+EXPOSE 1433
+
+# Start the SQL Server service
+CMD ["/opt/mssql/bin/sqlservr"]

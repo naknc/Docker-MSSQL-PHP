@@ -1,0 +1,24 @@
+FROM php:7.1-apache
+ENV ACCEPT_EULA=Y
+RUN apt-get update && apt-get install -y gnupg2
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - 
+RUN curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list 
+RUN apt-get update 
+RUN ACCEPT_EULA=Y apt-get -y --no-install-recommends install msodbcsql17 unixodbc-dev 
+RUN pecl install sqlsrv-5.6.1
+RUN pecl install pdo_sqlsrv-5.6.1
+RUN docker-php-ext-enable sqlsrv pdo_sqlsrv # Install Microsoft ODBC Driver for SQL Server
+
+
+# Copy the PHP script to the web root
+COPY QuickDbTest.php /var/www/html/index.php
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Expose port 80 for the web server
+EXPOSE 80
+
+# Start Apache in the foreground
+CMD ["apache2ctl", "-D", "FOREGROUND"]

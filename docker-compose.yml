@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  mssql-server:
+    build:
+      context: ./mssql-container
+      dockerfile: Dockerfile.mssql
+    container_name: mssql-container
+    ports: 
+      - "1433:1433"
+
+  api:
+    build:
+      context: ./api-container
+      dockerfile: Dockerfile.api
+    container_name: api-container
+    ports:
+      - "8080:80"  # Map host port 8080 to container port 80
+    depends_on:
+      - mssql-server
